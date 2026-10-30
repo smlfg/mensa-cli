@@ -1,32 +1,22 @@
-# cli-mcp-template
-Project template for CLIs and MCP servers with the shared test suite
+# mensa
 
-## Schritt 0: UX-Spec zuerst
+Speiseplan deutscher Mensen über die offene [OpenMensa-API v2](https://openmensa.org/api/v2). Standard-Mensa ist Heilbronn, Mensa Bildungscampus/Europaplatz (ID 277). Kein Login, keine schreibenden Requests.
 
-Der komplette Ablauf steht in [agent-learnings/WORKFLOW.md](https://github.com/smlfg/agent-learnings/blob/main/WORKFLOW.md).
+## Schnellstart
 
-1. Vor jeder Codezeile `docs/UX.md` ausfüllen (Vorlage liegt hier): die 3 wichtigsten Nutzer-Aufgaben als abtippbare Terminal-Sitzungen (pipx-Installation, `<tool> login`, Suche per Name, schreibende Aktion bis zur letzten Seite mit `[j/N]`), dazu alle live erkundeten Formularschritte und Fixtures unter `tests/fixtures/ux/`.
-2. Spec prüfen: `python3 tests/harness/ux_spec.py docs/UX.md`
-3. Gate nach dem Bau (beide müssen grün sein, sonst ist der Build nicht fertig):
-   - `python3 tests/harness/ux_check.py .` (UX-Lint UX01–UX08)
-   - `python3 tests/harness/ux_session.py .` (spielt die Sitzungen im Pseudo-Terminal gegen einen Fake-Server durch und prüft, dass ALLE Formularschritte gesendet werden)
+```bash
+pipx install git+https://github.com/smlfg/mensa-cli
+mensa tag 2026-11-02
+mensa suche Heilbronn
+mensa standard Bildungscampus
+```
 
-`tests/harness/` wird unverändert aus agent-learnings übernommen.
+`mensa tag 2026-11-02` zeigt den Speiseplan der Standard-Mensa für einen Tag. `mensa suche Heilbronn` findet Mensen nach Stadt oder Name. `mensa standard Bildungscampus` speichert die Standard-Mensa lokal in `~/.config/mensa-cli/config.json`.
 
-## Pflichtregel: Bedienbarkeit für Menschen
+Weitere Befehle: `mensa heute`, `mensa woche`, `mensa gericht STICHWORT`. Filter: `--vegetarisch`, `--vegan`, `--max-preis`, `--rolle studierende|bedienstete|gaeste`.
 
-Jede CLI muss für Menschen bedienbar sein: `login`-Kommando statt nur Env, Namen statt IDs, interaktive Bestätigung im TTY, `--confirm` nur für Agenten, README-Schnellstart.
+Die UX-Spezifikation steht in [docs/UX.md](docs/UX.md).
 
-- `login` fragt im Terminal interaktiv (Passwort per getpass) und speichert im Schlüsselbund oder in einer Config-Datei mit 0600; dazu `logout` und `whoami`/`status` ohne Passwort-Ausgabe. Env-Variablen überschreiben die Config (für Agenten).
-- Namen/Freitext positional (`tool book volleyball`, `tool search fahrrad`); mehrere Treffer → nummerierte Auswahl im TTY, ohne TTY Liste + Exit Usage.
-- Schreibende Aktionen: im TTY „… verbindlich? [j/N]“; `--confirm`/`--yes` nur für Agenten; ohne TTY und ohne Flag kein Request.
-- Terminal-Ausgabe lesbar; JSON mit `--json` oder wenn stdout kein Terminal ist.
-- Fehler nennen den nächsten Schritt, keine Tracebacks bei EOF/Strg+C/fehlender optionaler Abhängigkeit.
-- README beginnt mit „Schnellstart“: `pipx install git+https://github.com/smlfg/<repo>`, Login, ein typischer Befehl.
+## Lizenz
 
-### Pflicht-QA-Prüfpunkt „Bedienbarkeit für Menschen“
-
-1. Frisch per `pipx install git+…` installieren, Befehl direkt im PATH aufrufen.
-2. Haupt-Use-Case nur mit `--help` im Pseudo-Terminal (`script -qc "…" /dev/null`) durchspielen: `login` interaktiv, Suche per Name, Bestätigungsfrage mit „N“ → nichts gesendet.
-3. Ohne Login: Fehlermeldung nennt `tool login`.
-4. FAIL, wenn eine Kernaktion nur über Env-Variablen, interne IDs oder `--confirm` erreichbar ist.
+MIT, Copyright smlfg.
