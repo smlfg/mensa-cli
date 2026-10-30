@@ -18,6 +18,7 @@ try:
         PtySession,
         build_env,
         check_write,
+        free_local_port,
         install_fresh,
         run_session,
         strip_ansi,
@@ -36,6 +37,7 @@ except ImportError:  # pragma: no cover - Paketimport
         PtySession,
         build_env,
         check_write,
+        free_local_port,
         install_fresh,
         run_session,
         strip_ansi,
@@ -77,6 +79,7 @@ class Context:
     sub_help: dict[str, str] = field(default_factory=dict)
     servers: list = field(default_factory=list)
     ux05_transcripts: dict[str, str] = field(default_factory=dict)
+    port: int = 0
 
 
 def _row(rows: dict[str, CheckRow], cid: str, ok: bool, befund: str, details: str = "") -> None:
@@ -128,18 +131,33 @@ def _subcommands(help_text: str) -> list[str]:
             if re.fullmatch(r"[A-Za-z][\w-]*", part) and part not in names:
                 names.append(part)
     positional = False
+    metavar_header = False
     for line in help_text.splitlines():
         if re.match(r"^\s*(positional arguments|Positional Arguments)\s*:\s*$", line):
             positional = True
+            metavar_header = False
             continue
         if not positional:
             continue
         match = re.match(r"^\s*\{([^{}]+)\}\s*$", line)
         if match:
+            metavar_header = False
             for part in match.group(1).split(","):
                 part = part.strip()
                 if re.fullmatch(r"[A-Za-z][\w-]*", part) and part not in names:
                     names.append(part)
+        elif re.match(r"^\s{2,}[A-Z][A-Z0-9_-]*\s*$", line):
+            # argparse mit eigenem metavar ("SUBCOMMAND"/"ACTION"), darunter
+            # eingerückte Unterkommandos mit Beschreibung (wg-gesucht-cli).
+            metavar_header = True
+        elif metavar_header:
+            match = re.match(r"^\s{4,}([A-Za-z][\w-]*)\s{2,}\S", line)
+            if match:
+                if match.group(1) not in names:
+                    names.append(match.group(1))
+            elif re.match(r"^\S", line):
+                positional = False
+                metavar_header = False
         elif re.match(r"^\S", line):
             positional = False
     section = False
@@ -370,7 +388,7 @@ def _check_ux06(rows: dict[str, CheckRow], ctx: Context) -> None:
 
 
 def _new_server(ctx: Context) -> FakeServer:
-    server = FakeServer(ctx.spec, ctx.repo)
+    server = FakeServer(ctx.spec, ctx.repo, port=ctx.port)
     ctx.servers.append(server)
     return server
 
@@ -609,6 +627,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     home = tempfile.mkdtemp(prefix="ux-check-home-", dir=_scratch_tmp())
+    ctx.port = free_local_port()
     ctx.bin_dir = bin_dir
     ctx.env = build_env(spec, None, home, bin_dir, repo)
     help_result = _run([tool, "--help"], ctx.env, cwd=repo)
