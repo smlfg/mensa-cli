@@ -1,0 +1,65 @@
+[
+  {
+    "id": 29313650,
+    "name": "Pudding Creme mit Streusel",
+    "category": "Dessert",
+    "prices": {"students": 0.9, "employees": 1.4, "pupils": null, "others": 2.0},
+    "notes": ["Pudding Creme mit Streusel"]
+  },
+  {
+    "id": 29313651,
+    "name": "Mandelpudding mit Granola",
+    "category": "Dessert vegan",
+    "prices": {"students": 0.9, "employees": 1.4, "pupils": null, "others": 2.0},
+    "notes": ["Mandelpudding mit Granola"]
+  },
+  {
+    "id": 29258050,
+    "name": "Currywurst vom Kalb mit fruchtiger Tomatensauce und Brot",
+    "category": "Foodtruck",
+    "prices": {"students": 3.2, "employees": 3.8, "pupils": null, "others": 5.8},
+    "notes": ["Veal Currywurst with a fruity tomato sauce and bread"]
+  },
+  {
+    "id": 29258051,
+    "name": "Currywurst vegan mit fruchtiger Tomatensauce und Brot",
+    "category": "Foodtruck",
+    "prices": {"students": 2.6, "employees": 3.1, "pupils": null, "others": 4.7},
+    "notes": ["Vegan Currywurst with fruity tomato sauce and bread"]
+  },
+  {
+    "id": 29258052,
+    "name": "Pommes Frites",
+    "category": "Foodtruck",
+    "prices": {"students": 1.5, "employees": 1.8, "pupils": null, "others": 2.7},
+    "notes": ["French fries"]
+  },
+  {
+    "id": 29313652,
+    "name": "Klare Gemüsebrühe mit Zartweizen",
+    "category": "Suppentopf",
+    "prices": {"students": 0.9, "employees": 1.4, "pupils": null, "others": 2.0},
+    "notes": ["Klare Gemüsebrühe mit Zartweizen"]
+  },
+  {
+    "id": 29313653,
+    "name": "Gebratenes Hechtfilet mit gebackenem Blumenkohl und Dinkelreis",
+    "category": "Tierisch",
+    "prices": {"students": 0.99, "employees": 1.35, "pupils": null, "others": 2.0},
+    "notes": ["Gebratenes Hechtfilet mit gebackenem Blumenkohl und Dinkelreis"]
+  },
+  {
+    "id": 29313654,
+    "name": "Gemüsebolognese mit hausgemachter Pasta",
+    "category": "Vegan",
+    "prices": {"students": 0.99, "employees": 1.35, "pupils": null, "others": 2.0},
+    "notes": ["Gemüsebolognese mit hausgemachter Pasta"]
+  },
+  {
+    "id": 29313655,
+    "name": "Spätzle-Pfanne mit Champignons und Blattspinat",
+    "category": "Vegetarisch",
+    "prices": {"students": 2.9, "employees": 4.5, "pupils": null, "others": 7.5},
+    "notes": ["Spätzle-Pfanne mit Champignons und Blattspinat"]
+  }
+]

@@ -1,0 +1,4 @@
+[{"id":1,"name":"Mensa UniCampus Magdeburg","city":"Magdeburg","address":"Pfälzer Str. 1, 39106 Magdeburg","coordinates":[52.139618827301895,11.647599935531616]},
+ {"id":2,"name":"Magdeburg Herrenkurg","city":"Magdeburg","address":"Breitscheidstr. 2, 39114 Magdeburg","coordinates":[52.14006658530411,11.67566657066345]},
+ {"id":277,"name":"Heilbronn, Mensa Bildungscampus/Europaplatz","city":"Heilbronn","address":"Bildungscampus 8, 74076 Heilbronn","coordinates":[49.148449150000005,9.215792608703705]},
+ {"id":278,"name":"Heilbronn, Mensa Sontheim","city":"Heilbronn","address":"Max-Planck-Straße 39, 74081 Heilbronn","coordinates":[49.122579599999995,9.209932893491]}]
