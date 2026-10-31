@@ -37,3 +37,8 @@ Zusätzlich: `python3 tests/harness/ux_check.py . --spec-only` -> Exit 0, PASS; 
 | Mehrere Treffer im Terminal auswählen | 1 | PASS | OK |
 | Standard-Mensa speichern | 1 | PASS | OK |
 | Geschlossener Tag | 1 | PASS | OK |
+
+
+## Nachlauf 31.10.2026 mit UX09
+
+ux_check.py Exit 0 (UX00–UX08 PASS, UX09 SKIP: keine schreibende Sitzung), ux_session.py Exit 0.
