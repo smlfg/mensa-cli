@@ -80,6 +80,19 @@ def build_parser() -> argparse.ArgumentParser:
     _add_json_arg(tag)
     tag.set_defaults(handler=cmd_tag)
 
+    suche = subparsers.add_parser(
+        "suche",
+        help="Mensen nach Stadt oder Name suchen",
+        description="Mensen nach Stadt oder Name suchen.",
+    )
+    suche.add_argument(
+        "suchbegriff",
+        metavar="SUCHBEGRIFF",
+        help="Teilstring in Name, Stadt oder Adresse",
+    )
+    _add_json_arg(suche)
+    suche.set_defaults(handler=cmd_suche)
+
     return parser
 
 
@@ -247,6 +260,30 @@ def cmd_heute(args: argparse.Namespace) -> int:
 
 def cmd_morgen(args: argparse.Namespace) -> int:
     return _run_day(args, today() + _dt.timedelta(days=1))
+
+
+def cmd_suche(args: argparse.Namespace) -> int:
+    env = os.environ
+    with OpenMensaClient(env.get("MENSA_BASE_URL")) as client:
+        canteens = _load_canteens(client)
+    results = search(canteens, args.suchbegriff)
+    if _is_json(args):
+        _print_json(
+            {
+                "query": args.suchbegriff,
+                "results": [canteen.to_dict() for canteen in results],
+            }
+        )
+        return 0
+    if not results:
+        _print_lines(["Keine Mensen gefunden."])
+        return 0
+    lines = [f"Mensen gefunden ({len(results)}):"]
+    for index, canteen in enumerate(results, start=1):
+        suffix = f" – {canteen.address}" if canteen.address else ""
+        lines.append(f"  {index}) {canteen.name} ({canteen.id}){suffix}")
+    _print_lines(lines)
+    return 0
 
 
 def cmd_tag(args: argparse.Namespace) -> int:
