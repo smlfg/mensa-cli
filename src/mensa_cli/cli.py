@@ -47,6 +47,14 @@ def build_parser() -> argparse.ArgumentParser:
     _add_json_arg(heute)
     heute.set_defaults(handler=cmd_heute)
 
+    morgen = subparsers.add_parser(
+        "morgen", help="Speiseplan für morgen", description="Speiseplan für morgen."
+    )
+    _add_mensa_arg(morgen)
+    _add_filter_args(morgen)
+    _add_json_arg(morgen)
+    morgen.set_defaults(handler=cmd_morgen)
+
     return parser
 
 
@@ -210,6 +218,10 @@ def _run_day(args: argparse.Namespace, day: _dt.date) -> int:
 
 def cmd_heute(args: argparse.Namespace) -> int:
     return _run_day(args, today())
+
+
+def cmd_morgen(args: argparse.Namespace) -> int:
+    return _run_day(args, today() + _dt.timedelta(days=1))
 
 
 def main(argv: Sequence[str] | None = None) -> int:
