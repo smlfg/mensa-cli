@@ -1,0 +1,65 @@
+[
+  {
+    "id": 29313656,
+    "name": "Kokospudding mit Bananenkuchen",
+    "category": "Dessert",
+    "prices": {"students": 0.9, "employees": 1.4, "pupils": null, "others": 2.0},
+    "notes": ["Kokospudding mit Bananenkuchen"]
+  },
+  {
+    "id": 29313657,
+    "name": "Kirsch-Zwieback Trifle",
+    "category": "Dessert vegan",
+    "prices": {"students": 0.9, "employees": 1.4, "pupils": null, "others": 2.0},
+    "notes": ["Kirsch-Zwieback Trifle"]
+  },
+  {
+    "id": 29258059,
+    "name": "Burger vom Rind aus der Region mit Tomate, Röstzwiebeln und hausgemachtem Dip",
+    "category": "Foodtruck",
+    "prices": {"students": 6.0, "employees": 7.0, "pupils": null, "others": 9.5},
+    "notes": ["Burger made from local beef, served with tomatoes, fried onions and a homemade dip"]
+  },
+  {
+    "id": 29258060,
+    "name": "Burger vom Portobello-Pilz, mit Pak Choi und eingelegtem Gemüse",
+    "category": "Foodtruck",
+    "prices": {"students": 5.5, "employees": 6.5, "pupils": null, "others": 9.0},
+    "notes": ["Vegan Portobello mushroom burger with pak choi and mixed pickles"]
+  },
+  {
+    "id": 29258061,
+    "name": "Pommes Frites",
+    "category": "Foodtruck",
+    "prices": {"students": 1.5, "employees": 1.8, "pupils": null, "others": 2.7},
+    "notes": ["French fries"]
+  },
+  {
+    "id": 29313658,
+    "name": "Indische Linsensuppe",
+    "category": "Suppentopf",
+    "prices": {"students": 0.9, "employees": 1.4, "pupils": null, "others": 2.0},
+    "notes": ["Indische Linsensuppe"]
+  },
+  {
+    "id": 29313659,
+    "name": "Pasta Bolognese vom Rind mit geriebenem Käse",
+    "category": "Tierisch",
+    "prices": {"students": 0.99, "employees": 1.35, "pupils": null, "others": 2.0},
+    "notes": ["Pasta Bolognese vom Rind mit geriebenem Käse"]
+  },
+  {
+    "id": 29313660,
+    "name": "Frühlingsrolle mit Sweet-Chili-Soße und Langkornreis",
+    "category": "Vegan",
+    "prices": {"students": 2.9, "employees": 4.5, "pupils": null, "others": 7.5},
+    "notes": ["Frühlingsrolle mit Sweet-Chili-Soße und Langkornreis"]
+  },
+  {
+    "id": 29313661,
+    "name": "Auberginen-Picatta mit Tomatensoße auf Basmatireis",
+    "category": "Vegetarisch",
+    "prices": {"students": 0.99, "employees": 1.35, "pupils": null, "others": 2.0},
+    "notes": ["Auberginen-Picatta mit Tomatensoße auf Basmatireis"]
+  }
+]

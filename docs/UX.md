@@ -6,23 +6,24 @@ Alle Befehle sind so abtippbar, wie sie im Terminal eingegeben werden. Die Fixtu
 
 ## Meta
 
-Der Befehlsname im PATH ist `mensa`. Die Basis-URL lässt sich für Tests und den Fake-Server über `MENSA_BASE_URL` überschreiben. Es gibt keine Zugangsdaten und deshalb kein `login`-Kommando.
+Der Befehlsname im PATH ist `mensa`. Die Basis-URL lässt sich für Tests und den Fake-Server über `MENSA_BASE_URL` überschreiben. `MENSA_HEUTE` (nur für Tests und Sitzungen) überschreibt das heutige Datum, damit `mensa heute` und `mensa morgen` deterministisch laufen. Es gibt keine Zugangsdaten und deshalb kein `login`-Kommando.
 
 ```ux-meta
 {"tool": "mensa",
  "install": "pipx install git+https://github.com/smlfg/mensa-cli",
- "base_url_env": "MENSA_BASE_URL"}
+ "base_url_env": "MENSA_BASE_URL",
+ "env": {"MENSA_HEUTE": "2026-11-02"}}
 ```
 
 ## Sitzungen
 
 ### Installation und erster Speiseplan
 
-Nach der Installation zeigt `mensa tag 2026-11-02` ohne weiteren Namen den Speiseplan der Standard-Mensa (Heilbronn, ID 277). Kategorien und alle drei Preise stehen direkt in der Ausgabe, damit ein Mensch ohne Nachschlagen entscheiden kann.
+Nach der Installation zeigt `mensa heute` ohne weiteren Namen den Speiseplan der Standard-Mensa (Heilbronn, ID 277) für den heutigen Tag (`MENSA_HEUTE` überschreibt das Datum nur in Tests). Kategorien und alle drei Preise stehen direkt in der Ausgabe, damit ein Mensch ohne Nachschlagen entscheiden kann.
 
 ```ux-session
 $ pipx install git+https://github.com/smlfg/mensa-cli
-$ mensa tag 2026-11-02
+$ mensa heute
 < Mensa: Heilbronn, Mensa Bildungscampus/Europaplatz (277)
 < Datum: Montag, 02.11.2026
 < Preise: Studierende / Bedienstete / Gäste (EUR)
@@ -43,12 +44,12 @@ $ mensa suche Heilbronn
 ! exit 0
 ```
 
-### Tag für eine Mensa per Name und Filter
+### Heute für eine Mensa per Name und Filter
 
 Der Mensa-Name ist positional. `--vegan` filtert clientseitig über Kategorie, Name und Hinweise. Die Preise bleiben für alle Rollen sichtbar.
 
 ```ux-session
-$ mensa tag 2026-11-02 Bildungscampus --vegan
+$ mensa heute Bildungscampus --vegan
 < Mensa: Heilbronn, Mensa Bildungscampus/Europaplatz (277)
 < Datum: Montag, 02.11.2026
 < Filter: vegan
@@ -63,14 +64,14 @@ $ mensa tag 2026-11-02 Bildungscampus --vegan
 Ein zu unscharfer Name führt zu einer nummerierten Auswahl. Ohne TTY gibt das Tool die Liste aus und endet mit einem Usage-Fehler, statt eine ID zu erraten.
 
 ```ux-session
-$ mensa tag 2026-11-02 Heilbronn
+$ mensa morgen Heilbronn
 < Mehrere Mensen gefunden:
 <   1) Heilbronn, Mensa Bildungscampus/Europaplatz (277)
 <   2) Heilbronn, Mensa Sontheim (278)
 < Auswahl [1-2]:
 > 1
 < Mensa: Heilbronn, Mensa Bildungscampus/Europaplatz (277)
-< Datum: Montag, 02.11.2026
+< Datum: Dienstag, 03.11.2026
 ! exit 0
 ```
 
@@ -107,6 +108,8 @@ Alle Requests sind GET. `query_contains` unterscheidet die Seiten der Canteen-Li
  {"method":"GET","path":"/canteens","query_contains":"page=4","response":"tests/fixtures/ux/canteens_page4.json","status":200,"content_type":"application/json; charset=utf-8"},
  {"method":"GET","path":"/canteens/277/days/2026-11-02","response":"tests/fixtures/ux/day_277_2026-11-02.json","status":200,"content_type":"application/json; charset=utf-8"},
  {"method":"GET","path":"/canteens/277/days/2026-11-02/meals","response":"tests/fixtures/ux/meals_277_2026-11-02.json","status":200,"content_type":"application/json; charset=utf-8"},
+ {"method":"GET","path":"/canteens/277/days/2026-11-03","response":"tests/fixtures/ux/day_277_2026-11-03.json","status":200,"content_type":"application/json; charset=utf-8"},
+ {"method":"GET","path":"/canteens/277/days/2026-11-03/meals","response":"tests/fixtures/ux/meals_277_2026-11-03.json","status":200,"content_type":"application/json; charset=utf-8"},
  {"method":"GET","path":"/canteens/277/days/2026-11-01","response":"tests/fixtures/ux/day_277_2026-11-01.json","status":200,"content_type":"application/json; charset=utf-8"}]
 ```
 

@@ -6,12 +6,12 @@ Speiseplan deutscher Mensen über die offene [OpenMensa-API v2](https://openmens
 
 ```bash
 pipx install git+https://github.com/smlfg/mensa-cli
-mensa tag 2026-11-02
+mensa heute
 mensa suche Heilbronn
 mensa standard Bildungscampus
 ```
 
-`mensa tag 2026-11-02` zeigt den Speiseplan der Standard-Mensa für einen Tag. `mensa suche Heilbronn` findet Mensen nach Stadt oder Name. `mensa standard Bildungscampus` speichert die Standard-Mensa lokal in `~/.config/mensa-cli/config.json`.
+`mensa heute` zeigt den Speiseplan der Standard-Mensa für heute. `mensa suche Heilbronn` findet Mensen nach Stadt oder Name. `mensa standard Bildungscampus` speichert die Standard-Mensa lokal in `~/.config/mensa-cli/config.json`.
 
 Weitere Befehle: `mensa heute`, `mensa woche`, `mensa gericht STICHWORT`. Filter: `--vegetarisch`, `--vegan`, `--max-preis`, `--rolle studierende|bedienstete|gaeste`.
 
