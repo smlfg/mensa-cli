@@ -239,9 +239,13 @@ def _resolve_canteen(
             return matches[0]
         if sys.stdin.isatty() and sys.stdout.isatty():
             return _prompt_choice(matches)
+        sys.stderr.write("Mehrere Mensen gefunden:\n")
+        for line in _numbered_lines(matches):
+            sys.stderr.write(line + "\n")
         raise UsageError(
             f"Mehrere Mensen passen zu {name!r}.",
             "Einen genaueren Namen angeben; `mensa suche SUCHBEGRIFF` listet die Treffer.",
+            {"candidates": [canteen.to_dict() for canteen in matches]},
         )
     config = load_config(env)
     canteen_id = int(config["canteen_id"])

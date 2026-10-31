@@ -8,10 +8,16 @@ class MensaError(Exception):
 
     exit_code = 3
 
-    def __init__(self, message: str, next_step: str | None = None) -> None:
+    def __init__(
+        self,
+        message: str,
+        next_step: str | None = None,
+        extra: dict[str, object] | None = None,
+    ) -> None:
         super().__init__(message)
         self.message = message
         self.next_step = next_step
+        self.extra = extra or {}
 
     def as_dict(self) -> dict[str, object]:
         data: dict[str, object] = {
@@ -20,6 +26,7 @@ class MensaError(Exception):
         }
         if self.next_step:
             data["next"] = self.next_step
+        data.update(self.extra)
         return data
 
 
@@ -46,9 +53,15 @@ class AuthError(MensaError):
 
     exit_code = 4
 
-    def __init__(self, message: str, next_step: str | None = None) -> None:
+    def __init__(
+        self,
+        message: str,
+        next_step: str | None = None,
+        extra: dict[str, object] | None = None,
+    ) -> None:
         super().__init__(
             message,
             next_step
             or "mensa kennt keinen Login; später erneut versuchen oder OpenMensa informieren.",
+            extra,
         )
