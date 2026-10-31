@@ -65,6 +65,21 @@ def build_parser() -> argparse.ArgumentParser:
     _add_json_arg(woche)
     woche.set_defaults(handler=cmd_woche)
 
+    tag = subparsers.add_parser(
+        "tag",
+        help="Speiseplan für einen einzelnen Tag",
+        description="Speiseplan für einen einzelnen Tag.",
+    )
+    tag.add_argument(
+        "datum",
+        metavar="DATUM",
+        help="heute, morgen, Wochentag, JJJJ-MM-TT oder TT.MM.JJJJ",
+    )
+    _add_mensa_arg(tag)
+    _add_filter_args(tag)
+    _add_json_arg(tag)
+    tag.set_defaults(handler=cmd_tag)
+
     return parser
 
 
@@ -232,6 +247,11 @@ def cmd_heute(args: argparse.Namespace) -> int:
 
 def cmd_morgen(args: argparse.Namespace) -> int:
     return _run_day(args, today() + _dt.timedelta(days=1))
+
+
+def cmd_tag(args: argparse.Namespace) -> int:
+    day = parse_date(args.datum, today())
+    return _run_day(args, day)
 
 
 def cmd_woche(args: argparse.Namespace) -> int:
