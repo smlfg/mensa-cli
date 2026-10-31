@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mensa-cli"
+version = "0.1.0"
+description = "Speiseplan deutscher Mensen im Terminal über die OpenMensa-API v2"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "smlfg", email = "186922365+smlfg@users.noreply.github.com" },
+]
+dependencies = [
+  "requests>=2.28",
+]
+
+[project.scripts]
+mensa = "mensa_cli.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
