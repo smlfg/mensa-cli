@@ -14,7 +14,7 @@ Pflicht-QA nach Workflow-Schritt 6 (find -> file, keine Codeänderung).
 
 ## Ergebnis
 
-**58 OK / 59 Prüfungen, 1 FAIL.**
+**59 OK / 59 Prüfungen, 0 FAIL.** (Nachprüfung FAIL 1 nach Fix `4bd6d6a`.)
 
 | # | Prüfung | Befehl | Erwartet | Ergebnis | Beleg (gekürzt) |
 |---|---|---|---|---|---|
@@ -72,22 +72,23 @@ Pflicht-QA nach Workflow-Schritt 6 (find -> file, keine Codeänderung).
 | 52 | Ungültige Basis-URL | `MENSA_BASE_URL=foo mensa heute` | Exit 3, nächster Schritt | OK | `scratch/qa/s5/err-baseurl-pty.log` |
 | 53 | Korrupte Config | kaputtes `config.json`, `mensa heute` | Exit 1, Hinweis auf `mensa standard` | OK | `scratch/qa/s5/err-config.log` |
 | 54 | JSON-Fehler bei Usage | `mensa foo --json`, `mensa tag --json`, `--max-preis abc --json` | genau ein JSON-Objekt, Exit 2 | OK | `scratch/qa/s5/err-command-json.out`, `err-missing-date-json.out`, `err-price-json.out` |
-| 55 | Unbekannte Canteen-ID in Config | Config `canteen_id: 999999`, `mensa heute` | Exit 2 „unbekannte Mensa“ | **FAIL** (Exit 0, falsche Meldung) | `scratch/qa/s5/unknown-id-live.log`, `unknown-id-live.json` |
+| 55 | Unbekannte Canteen-ID in Config | Config `canteen_id: 999999`, `mensa heute` | Exit 2 „unbekannte Mensa“ | OK (nach Fix `4bd6d6a`) | `scratch/qa/s6/unknown-id-live.log`, `unknown-id-live.json` |
 | 56 | JSON-Validity | `python3 -m json.tool` über alle frischen JSON-Dateien | alle valide | OK | `scratch/qa/s5/*.json` |
 | 57 | Keine Tracebacks | `grep -RIn "Traceback"` über alle Sitzungslogs | keine Treffer | OK | `scratch/qa/s5/`, `scratch/qa/*.log` |
-| 58 | Testsuite | `scratch/venv/bin/pytest -q` | grün | OK | `scratch/qa/s5/pytest.txt` (85 passed) |
-| 59 | UX-Gate Spec | `python3 tests/harness/ux_check.py . --spec-only` | PASS, Exit 0 | OK | `scratch/qa/s5/ux-spec-only.txt` |
+| 58 | Testsuite | `scratch/venv/bin/pytest -q` | grün | OK | `scratch/qa/s6/pytest.txt` (86 passed, nach Fix) |
+| 59 | UX-Gate Spec | `python3 tests/harness/ux_check.py . --spec-only` | PASS, Exit 0 | OK | `scratch/qa/s6/ux-spec-only.txt` |
 
-## Offene FAILs
+## Nachprüfung FAIL 1 (behoben)
 
 ### FAIL 1: Unbekannte Canteen-ID in der Config wird als „kein Plan“ ausgegeben
 
-- Reproduktion: `HOME=scratch/qa/s5/home-unknown`, Config `{"canteen_id": 999999, "name": "Unbekannte Mensa"}`, dann `mensa heute` (live und Fake).
+- Ursprüngliche Reproduktion: `HOME=scratch/qa/s5/home-unknown`, Config `{"canteen_id": 999999, "name": "Unbekannte Mensa"}`, dann `mensa heute` (live und Fake).
 - Erwartet laut `INTERFACE.md`: „HTTP 404 auf eine Canteen-ID ist Exit 2 (unbekannte Mensa).“ Eine unbekannte Mensa ist ein Usage-Fehler mit Hinweis auf `mensa suche`.
-- Tatsächlich: Exit 0, Ausgabe „Kein Speiseplan veröffentlicht (Datum außerhalb des veröffentlichten Zeitraums).“, JSON `no_plan: true`. Die unbekannte ID wird wie eine gültige Mensa ohne veröffentlichten Plan behandelt.
-- Beleg: `scratch/qa/s5/unknown-id-live.log` und `scratch/qa/s5/unknown-id-live.json`; mit Fake-Server identisch in `unknown-id-fake.log` und `unknown-id-fake.json`.
+- Ursprünglich tatsächlich: Exit 0, Ausgabe „Kein Speiseplan veröffentlicht (Datum außerhalb des veröffentlichten Zeitraums).“, JSON `no_plan: true`.
+- Beleg vor dem Fix: `scratch/qa/s5/unknown-id-live.log` und `scratch/qa/s5/unknown-id-live.json`; mit Fake-Server identisch in `unknown-id-fake.log` und `unknown-id-fake.json`.
 - Einordnung: echter Betriebsfehler, kein False Positive des UX-Gates. Der Harness wurde nicht verändert.
-- Vorschlag für den Fix in einem Folge-Schritt (nicht in dieser QA ausgeführt): beim Auflösen der Config prüfen, ob `canteen_id` in der geladenen Canteen-Liste existiert; sonst `UsageError` mit Exit 2 und `mensa suche SUCHBEGRIFF` als nächstem Schritt.
+- Fix: `4bd6d6a` prüft beim Auflösen der Config, ob `canteen_id` in der geladenen Canteen-Liste existiert; sonst `UsageError` mit Exit 2 und `mensa suche SUCHBEGRIFF` als nächstem Schritt. Regressionstest: `tests/test_commands.py::test_unbekannte_canteen_id_in_config_ist_usage`.
+- Nachprüfung live (pipx-Installation aus dem Repo, `scratch/qa/s6/home-unknown`, `mensa heute`): Exit 2, Meldung „Unbekannte Mensa in der Konfiguration: Unbekannte Mensa (999999).“, nächster Schritt `mensa suche SUCHBEGRIFF`. Beleg: `scratch/qa/s6/unknown-id-live.log` (PTY) und `scratch/qa/s6/unknown-id-live.json`.
 
 ## Hinweise (kein FAIL)
 
