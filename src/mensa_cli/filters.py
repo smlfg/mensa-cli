@@ -14,6 +14,12 @@ ROLE_TO_PRICE = {
     "gaeste": "others",
 }
 
+ROLE_LABEL = {
+    "studierende": "Studierende",
+    "bedienstete": "Bedienstete",
+    "gaeste": "Gäste",
+}
+
 
 @dataclass(frozen=True)
 class FilterSpec:
@@ -43,7 +49,7 @@ class FilterSpec:
         if self.max_price is not None:
             parts.append(
                 f"max {self.max_price:.2f}".replace(".", ",")
-                + f" EUR ({self.role.capitalize()})"
+                + f" EUR ({ROLE_LABEL.get(self.role, self.role)})"
             )
         return ", ".join(parts)
 
