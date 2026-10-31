@@ -16,7 +16,7 @@ from .config import load_config
 from .dates import format_date, parse_date, today, week_bounds, week_dates
 from .errors import MensaError, UsageError
 from .filters import FilterSpec, parse_max_price
-from .formatting import header_lines, plan_body_lines
+from .formatting import header_lines, meal_line, plan_body_lines
 from .models import Canteen
 
 ROLE_CHOICES = ("studierende", "bedienstete", "gaeste")
@@ -92,6 +92,23 @@ def build_parser() -> argparse.ArgumentParser:
     )
     _add_json_arg(suche)
     suche.set_defaults(handler=cmd_suche)
+
+    gericht = subparsers.add_parser(
+        "gericht",
+        help="kommende Tage nach einem Gericht durchsuchen",
+        description="Die nächsten 7 Tage nach einem Gericht durchsuchen.",
+    )
+    gericht.add_argument(
+        "stichwort", metavar="STICHWORT", help="Teilstring im Gericht, Kategorie oder Hinweis"
+    )
+    gericht.add_argument(
+        "--mensa",
+        metavar="MENSA-NAME",
+        help="Mensa per Name, Stadt oder Adresse (sonst Standard-Mensa)",
+    )
+    _add_filter_args(gericht)
+    _add_json_arg(gericht)
+    gericht.set_defaults(handler=cmd_gericht)
 
     return parser
 
@@ -260,6 +277,59 @@ def cmd_heute(args: argparse.Namespace) -> int:
 
 def cmd_morgen(args: argparse.Namespace) -> int:
     return _run_day(args, today() + _dt.timedelta(days=1))
+
+
+def cmd_gericht(args: argparse.Namespace) -> int:
+    from .filters import apply
+
+    spec = _filter_spec(args)
+    env = os.environ
+    base = today()
+    days = [base + _dt.timedelta(days=offset) for offset in range(7)]
+    query = args.stichwort
+    needle = query.casefold()
+    with OpenMensaClient(env.get("MENSA_BASE_URL")) as client:
+        canteens = _load_canteens(client)
+        canteen = _resolve_canteen(args.mensa, canteens, env)
+        plans = [(day, client.day(canteen.id, day.isoformat())) for day in days]
+    matches: list[tuple[_dt.date, object]] = []
+    for day, plan in plans:
+        if plan.closed or plan.no_plan:
+            continue
+        for meal in apply(plan.meals, spec):
+            haystack = " ".join([meal.name, meal.category, *meal.notes]).casefold()
+            if needle in haystack:
+                matches.append((day, meal))
+    if _is_json(args):
+        _print_json(
+            {
+                "query": query,
+                "canteen": canteen.to_dict(),
+                "days": 7,
+                "filter": spec.to_dict(),
+                "matches": [
+                    {
+                        "date": day.isoformat(),
+                        "weekday": format_date(day).split(",", 1)[0],
+                        "canteen": canteen.to_dict(),
+                        "meal": meal.to_dict(),
+                    }
+                    for day, meal in matches
+                ],
+            }
+        )
+        return 0
+    if not matches:
+        _print_lines(
+            [f'Keine Treffer für "{query}" in den nächsten 7 Tagen.']
+        )
+        return 0
+    lines = [f'Treffer für "{query}" ({len(matches)}):']
+    for day, meal in matches:
+        lines.append(f"  {format_date(day)} – {canteen.name} ({canteen.id})")
+        lines.append(f"    {meal_line(meal).lstrip()}")
+    _print_lines(lines)
+    return 0
 
 
 def cmd_suche(args: argparse.Namespace) -> int:
