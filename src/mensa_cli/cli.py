@@ -12,7 +12,7 @@ from typing import Callable, Sequence
 from . import __version__
 from .catalog import by_id, load_canteens, search
 from .client import OpenMensaClient
-from .config import load_config
+from .config import load_config, save_config
 from .dates import format_date, parse_date, today, week_bounds, week_dates
 from .errors import MensaError, UsageError
 from .filters import FilterSpec, parse_max_price
@@ -109,6 +109,19 @@ def build_parser() -> argparse.ArgumentParser:
     _add_filter_args(gericht)
     _add_json_arg(gericht)
     gericht.set_defaults(handler=cmd_gericht)
+
+    standard = subparsers.add_parser(
+        "standard",
+        help="Standard-Mensa lokal speichern",
+        description="Eine Mensa als Standard-Mensa speichern.",
+    )
+    standard.add_argument(
+        "mensa",
+        metavar="MENSA-NAME",
+        help="Mensa per Name, Stadt oder Adresse",
+    )
+    _add_json_arg(standard)
+    standard.set_defaults(handler=cmd_standard)
 
     return parser
 
@@ -277,6 +290,24 @@ def cmd_heute(args: argparse.Namespace) -> int:
 
 def cmd_morgen(args: argparse.Namespace) -> int:
     return _run_day(args, today() + _dt.timedelta(days=1))
+
+
+def cmd_standard(args: argparse.Namespace) -> int:
+    env = os.environ
+    with OpenMensaClient(env.get("MENSA_BASE_URL")) as client:
+        canteens = _load_canteens(client)
+        canteen = _resolve_canteen(args.mensa, canteens, env)
+    path = save_config(canteen, env)
+    if _is_json(args):
+        _print_json(
+            {
+                "standard": {"id": canteen.id, "name": canteen.name},
+                "config_path": str(path),
+            }
+        )
+        return 0
+    _print_lines([f"Standard-Mensa gespeichert: {canteen.name} ({canteen.id})"])
+    return 0
 
 
 def cmd_gericht(args: argparse.Namespace) -> int:
