@@ -252,7 +252,12 @@ def _resolve_canteen(
     known = by_id(canteens, canteen_id)
     if known is not None:
         return known
-    return Canteen(id=canteen_id, name=str(config.get("name") or f"Mensa {canteen_id}"))
+    stored_name = str(config.get("name") or f"Mensa {canteen_id}")
+    raise UsageError(
+        f"Unbekannte Mensa in der Konfiguration: {stored_name} ({canteen_id}).",
+        "`mensa suche SUCHBEGRIFF` ausprobieren oder mit "
+        "`mensa standard MENSA-NAME` eine andere Mensa speichern.",
+    )
 
 
 def _day_payload(

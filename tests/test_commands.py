@@ -139,3 +139,21 @@ def test_tag_wochentag_und_morgen(scratch_dir: Path) -> None:
     assert dienstag_code == 0
     assert "Datum: Dienstag, 03.11.2026" in morgen
     assert "Datum: Dienstag, 03.11.2026" in dienstag
+
+
+def test_unbekannte_canteen_id_in_config_ist_usage(scratch_dir: Path) -> None:
+    config_dir = scratch_dir / "config" / "mensa-cli"
+    config_dir.mkdir(parents=True)
+    (config_dir / "config.json").write_text(
+        json.dumps({"canteen_id": 999999, "name": "Unbekannte Mensa"}),
+        encoding="utf-8",
+    )
+    with FakeServer(SPEC, ROOT) as server:
+        result = _run(["heute"], _env(scratch_dir, server))
+    assert result.returncode == 2
+    data = json.loads(result.stdout)
+    assert data["exit_code"] == 2
+    assert "unbekannte mensa" in data["error"].casefold()
+    assert "mensa suche" in data["next"]
+    assert "Traceback (most recent call last)" not in result.stdout
+    assert "Traceback (most recent call last)" not in result.stderr
