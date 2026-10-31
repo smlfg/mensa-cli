@@ -13,7 +13,7 @@ from . import __version__
 from .catalog import by_id, load_canteens, search
 from .client import OpenMensaClient
 from .config import load_config
-from .dates import format_date, parse_date, today
+from .dates import format_date, parse_date, today, week_bounds, week_dates
 from .errors import MensaError, UsageError
 from .filters import FilterSpec, parse_max_price
 from .formatting import header_lines, plan_body_lines
@@ -54,6 +54,16 @@ def build_parser() -> argparse.ArgumentParser:
     _add_filter_args(morgen)
     _add_json_arg(morgen)
     morgen.set_defaults(handler=cmd_morgen)
+
+    woche = subparsers.add_parser(
+        "woche",
+        help="Speiseplan von Montag bis Sonntag",
+        description="Speiseplan von Montag bis Sonntag.",
+    )
+    _add_mensa_arg(woche)
+    _add_filter_args(woche)
+    _add_json_arg(woche)
+    woche.set_defaults(handler=cmd_woche)
 
     return parser
 
@@ -222,6 +232,55 @@ def cmd_heute(args: argparse.Namespace) -> int:
 
 def cmd_morgen(args: argparse.Namespace) -> int:
     return _run_day(args, today() + _dt.timedelta(days=1))
+
+
+def cmd_woche(args: argparse.Namespace) -> int:
+    spec = _filter_spec(args)
+    env = os.environ
+    base = today()
+    days = week_dates(base)
+    with OpenMensaClient(env.get("MENSA_BASE_URL")) as client:
+        canteens = _load_canteens(client)
+        canteen = _resolve_canteen(getattr(args, "mensa", None), canteens, env)
+        plans = [(day, client.day(canteen.id, day.isoformat())) for day in days]
+    start, end = week_bounds(base)
+    if _is_json(args):
+        from .filters import apply
+
+        _print_json(
+            {
+                "canteen": canteen.to_dict(),
+                "week": {"start": start.isoformat(), "end": end.isoformat()},
+                "filter": spec.to_dict(),
+                "days": [
+                    {
+                        "date": day.isoformat(),
+                        "weekday": format_date(day).split(",", 1)[0],
+                        "closed": plan.closed,
+                        "no_plan": plan.no_plan,
+                        "meals": [
+                            meal.to_dict()
+                            for meal in (
+                                apply(plan.meals, spec)
+                                if not (plan.closed or plan.no_plan)
+                                else []
+                            )
+                        ],
+                    }
+                    for day, plan in plans
+                ],
+            }
+        )
+        return 0
+    lines = [
+        f"Mensa: {canteen.name} ({canteen.id})",
+        f"Woche: {format_date(start)} – {format_date(end)}",
+    ]
+    for day, plan in plans:
+        lines.append(f"## {format_date(day)}")
+        lines.extend(plan_body_lines(plan, spec))
+    _print_lines(lines)
+    return 0
 
 
 def main(argv: Sequence[str] | None = None) -> int:
