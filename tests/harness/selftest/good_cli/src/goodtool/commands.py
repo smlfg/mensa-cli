@@ -100,6 +100,7 @@ def book(name: str, assume_yes: bool) -> int:
 
     overview = post_form(
         {
+            "item": item["id"],
             "vorname": config["vorname"],
             "name": config["nachname"],
             "status": config["status"],

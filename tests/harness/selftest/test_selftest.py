@@ -8,6 +8,7 @@ REPO = HARNESS.parents[1]
 UX_CHECK = HARNESS / "ux_check.py"
 GOOD = HARNESS / "selftest" / "good_cli"
 BAD = HARNESS / "selftest" / "bad_cli"
+NOCHECK = HARNESS / "selftest" / "nocheck_cli"
 SCRATCH_TMP = REPO / "scratch" / "tmp"
 
 
@@ -60,6 +61,18 @@ def test_good_cli_passes():
     assert rows["UX04"] == "PASS"
     assert rows["UX05"] == "PASS"
     assert rows["UX08"] == "PASS"
+    assert rows["UX09"] == "PASS"
+
+
+def test_nocheck_cli_fails_ux09_with_both_findings():
+    code, stdout, report = _run_check(NOCHECK)
+    rows = _rows(report)
+    assert code != 0, stdout
+    assert rows.get("UX09") == "FAIL", report
+    assert "(a)" in report, report
+    assert "(b)" in report, report
+    assert "Pflichtfeld 'status'" in report, report
+    assert "nochecktool login" in report, report
 
 
 def test_bad_cli_fails_expected_checks():
